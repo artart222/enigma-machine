@@ -3,6 +3,7 @@
 ### This is an implementation of enigma-1 written in rust
 
 ### For learning how enigma machine works you can use these materials:
+
 - [How did the Enigma Machine work](https://www.youtube.com/watch?v=ybkkiGtJmkM)
 - [Enigma machine](https://en.wikipedia.org/wiki/Enigma_machine)
 - [How rotors work](https://en.wikipedia.org/wiki/Enigma_rotor_details)
