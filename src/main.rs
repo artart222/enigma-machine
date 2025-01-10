@@ -26,7 +26,10 @@
 //           L ==> Q ==> Q ==> I
 //           O ==> Z ==> E ==> J
 
+use enigma_machine::plugboard::Plugboard;
+use enigma_machine::reflector::Reflector;
 use std::collections::HashMap;
+mod rotor;
 
 struct Rotor {
     letters_list: [char; 26],
@@ -40,36 +43,10 @@ fn main() {
         's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     ];
 
-    // TODO: Check if there is better way to do this.
-    let plugboard: HashMap<char, char> = HashMap::from([
-        ('a', 'b'),
-        ('b', 'a'),
-        ('c', 'd'),
-        ('d', 'c'),
-        ('e', 'f'),
-        ('f', 'e'),
-        ('g', 'h'),
-        ('h', 'g'),
-        ('i', 'j'),
-        ('j', 'i'),
-    ]);
+    let plugboard: Plugboard =
+        Plugboard::new([('a', 'b'), ('c', 'd'), ('e', 'f'), ('g', 'h'), ('i', 'j')]);
 
-    // TODO: Check if is better way to do this.
-    let reflector: HashMap<char, char> = HashMap::from([
-        //             A <==> E
-        //             B <==> J
-        //             C <==> M
-        //             D <==> Z
-        //             F <==> L
-        //             G <==> Y
-        //             H <==> X
-        //             I <==> V
-        //             K <==> W
-        //             N <==> R
-        //             Q <==> O
-        //             P <==> U
-        //             S <==> T
-        //
+    let reflector: Reflector = Reflector::new([
         ('a', 'e'),
         ('b', 'j'),
         ('c', 'm'),
@@ -83,20 +60,6 @@ fn main() {
         ('q', 'o'),
         ('p', 'u'),
         ('s', 't'),
-        //
-        ('e', 'a'),
-        ('j', 'b'),
-        ('m', 'c'),
-        ('z', 'd'),
-        ('l', 'f'),
-        ('y', 'g'),
-        ('x', 'h'),
-        ('v', 'i'),
-        ('w', 'k'),
-        ('r', 'n'),
-        ('o', 'q'),
-        ('u', 'p'),
-        ('t', 's'),
     ]);
 
     let mut rotor1 = Rotor {
@@ -131,10 +94,7 @@ fn main() {
 
         // println!("Start ==> Char: {}    New Char: {}", char, new_char);
 
-        match plugboard.get(&new_char) {
-            Some(charachter) => new_char = *charachter,
-            _ => new_char = new_char,
-        }
+        new_char = plugboard.swap_char(new_char);
         // println!("{}", new_char);
         // println!(
         //     "After first plugboard ==> Char: {}    New Char: {}",
@@ -178,10 +138,7 @@ fn main() {
         // println!("After first phase of rotors ==> New Char: {}", new_char);
         // End of first phase of rotors.
 
-        match reflector.get(&new_char) {
-            Some(charachter) => new_char = *charachter,
-            _ => new_char = new_char,
-        }
+        new_char = reflector.swap_char(new_char);
         // println!("After reflector ==> New Char: {}", new_char);
         // End of reflector code.
 
@@ -218,10 +175,7 @@ fn main() {
         // println!("After second phase of rotors ==> New Char: {}", new_char);
         // End of second phase of rotors.
 
-        match plugboard.get(&new_char) {
-            Some(charachter) => new_char = *charachter,
-            _ => new_char = new_char,
-        }
+        new_char = plugboard.swap_char(new_char);
         // println!("{}", new_char);
         // println!("After second plugboard ==> New Char: {}", new_char);
         // Second plugboard.
