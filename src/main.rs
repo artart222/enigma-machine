@@ -28,21 +28,9 @@
 
 use enigma_machine::plugboard::Plugboard;
 use enigma_machine::reflector::Reflector;
-use std::collections::HashMap;
-mod rotor;
-
-struct Rotor {
-    letters_list: [char; 26],
-    current_number: usize,
-    notch: usize,
-}
+use enigma_machine::rotor::Rotor;
 
 fn main() {
-    let alphabet: [char; 26] = [
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-        's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    ];
-
     let plugboard: Plugboard =
         Plugboard::new([('a', 'b'), ('c', 'd'), ('e', 'f'), ('g', 'h'), ('i', 'j')]);
 
@@ -62,125 +50,59 @@ fn main() {
         ('s', 't'),
     ]);
 
-    let mut rotor1 = Rotor {
-        letters_list: [
+    let mut rotor1 = Rotor::new(
+        [
             'e', 'k', 'm', 'f', 'l', 'g', 'd', 'q', 'v', 'z', 'n', 't', 'o', 'w', 'y', 'h', 'x',
             'u', 's', 'p', 'a', 'i', 'b', 'r', 'c', 'j',
         ],
-        current_number: 0,
-        notch: 7,
-    };
-    let mut rotor2 = Rotor {
-        letters_list: [
+        0,
+        7,
+    );
+    let mut rotor2 = Rotor::new(
+        [
             'a', 'j', 'd', 'k', 's', 'i', 'r', 'u', 'x', 'b', 'l', 'h', 'w', 't', 'm', 'c', 'q',
             'g', 'z', 'n', 'p', 'y', 'f', 'v', 'o', 'e',
         ],
-        current_number: 0,
-        notch: 25,
-    };
-    let mut rotor3 = Rotor {
-        letters_list: [
+        0,
+        25,
+    );
+    let mut rotor3 = Rotor::new(
+        [
             'b', 'd', 'f', 'h', 'j', 'l', 'c', 'p', 'r', 't', 'x', 'v', 'z', 'n', 'y', 'e', 'i',
             'w', 'g', 'a', 'k', 'm', 'u', 's', 'q', 'o',
         ],
-        current_number: 0,
-        notch: 11,
-    };
+        0,
+        11,
+    );
 
     let input: &str = "hello";
+    // let input: &str = "qnvez";
 
     for char in input.chars() {
         let mut new_char = char;
 
-        // println!("Start ==> Char: {}    New Char: {}", char, new_char);
-
         new_char = plugboard.swap_char(new_char);
-        // println!("{}", new_char);
-        // println!(
-        //     "After first plugboard ==> Char: {}    New Char: {}",
-        //     char, new_char
-        // );
-        // First plugboard.
 
-        let rotor1_index = alphabet.iter().position(|&r| r == new_char).unwrap() as usize;
-
-        rotor1.current_number += 1;
-        if rotor1.current_number == 26 {
-            rotor1.current_number = 0;
+        rotor1.rotate();
+        if rotor1.is_on_notch() {
+            rotor2.rotate();
+        }
+        if rotor2.is_on_notch() {
+            rotor3.rotate();
         }
 
-        if rotor1.notch == rotor1.current_number {
-            rotor2.current_number += 1;
-            if rotor2.current_number == 26 {
-                rotor2.current_number = 0;
-            }
-        }
-
-        if rotor2.notch == rotor2.current_number {
-            rotor3.current_number += 1;
-            if rotor3.current_number == 26 {
-                rotor3.current_number = 0;
-            }
-        }
-
-        // println!("Rotor 1 current number: {}", rotor1.current_number);
-        // println!("Rotor 2 current number: {}", rotor2.current_number);
-        // println!("Rotor 3 current number: {}", rotor3.current_number);
-
-        new_char = rotor1.letters_list[rotor1_index - rotor1.current_number];
-        // println!("After Rotor I ==> New Char: {}", new_char);
-        let rotor2_index = alphabet.iter().position(|&r| r == new_char).unwrap() as usize;
-        new_char = rotor2.letters_list[rotor2_index - rotor2.current_number];
-        // println!("After Rotor II ==> New Char: {}", new_char);
-        let rotor3_index = alphabet.iter().position(|&r| r == new_char).unwrap() as usize;
-        new_char = rotor3.letters_list[rotor3_index - rotor3.current_number];
-        // println!("After Rotor III ==> New Char: {}", new_char);
-        // println!("After first phase of rotors ==> New Char: {}", new_char);
-        // End of first phase of rotors.
+        new_char = rotor1.get_forward_char(new_char);
+        new_char = rotor2.get_forward_char(new_char);
+        new_char = rotor3.get_forward_char(new_char);
 
         new_char = reflector.swap_char(new_char);
-        // println!("After reflector ==> New Char: {}", new_char);
-        // End of reflector code.
 
-        let mut rotor3_index = rotor3
-            .letters_list
-            .iter()
-            .position(|&r| r == new_char)
-            .unwrap() as usize;
-        if rotor3_index + rotor3.current_number == 26 {
-            rotor3_index = rotor3_index - 26 + rotor3.current_number;
-        }
-        new_char = alphabet[rotor3_index + rotor3.current_number];
-
-        let mut rotor2_index = rotor2
-            .letters_list
-            .iter()
-            .position(|&r| r == new_char)
-            .unwrap() as usize;
-        if rotor2_index + rotor2.current_number == 26 {
-            rotor2_index = rotor2_index - 26 + rotor2.current_number;
-        }
-        new_char = alphabet[rotor2_index + rotor2.current_number];
-
-        let mut rotor1_index = rotor1
-            .letters_list
-            .iter()
-            .position(|&r| r == new_char)
-            .unwrap() as usize;
-        if rotor1_index + rotor1.current_number == 26 {
-            rotor1_index = rotor1_index - 26 + rotor1.current_number;
-        }
-
-        new_char = alphabet[rotor1_index + rotor1.current_number];
-        // println!("After second phase of rotors ==> New Char: {}", new_char);
-        // End of second phase of rotors.
+        new_char = rotor3.get_backward_char(new_char);
+        new_char = rotor2.get_backward_char(new_char);
+        new_char = rotor1.get_backward_char(new_char);
 
         new_char = plugboard.swap_char(new_char);
-        // println!("{}", new_char);
-        // println!("After second plugboard ==> New Char: {}", new_char);
-        // Second plugboard.
 
         println!("Char: {}    New Char: {}", char, new_char);
-        // println!("====================================================================================================")
     }
 }
