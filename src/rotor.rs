@@ -5,12 +5,12 @@ const ALPHABET: [char; 26] = [
 
 pub struct Rotor {
     letters_list: [char; 26],
-    current_number: usize,
-    notch: usize,
+    current_number: isize,
+    notch: isize,
 }
 
 impl Rotor {
-    pub fn new(letters_list: [char; 26], current_number: usize, notch: usize) -> Self {
+    pub fn new(letters_list: [char; 26], current_number: isize, notch: isize) -> Self {
         Rotor {
             letters_list,
             current_number,
@@ -31,8 +31,12 @@ impl Rotor {
     }
 
     pub fn get_forward_char(&self, inp_char: char) -> char {
-        let rotor_index = ALPHABET.iter().position(|&r| r == inp_char).unwrap() as usize;
-        self.letters_list[rotor_index - self.current_number]
+        let rotor_index = ALPHABET.iter().position(|&r| r == inp_char).unwrap() as isize;
+        if (rotor_index - self.current_number) >= 0 {
+            self.letters_list[(rotor_index - self.current_number) as usize]
+        } else {
+            self.letters_list[(rotor_index - self.current_number + 26) as usize]
+        }
     }
 
     // TODO: Refactor this function.
@@ -41,10 +45,10 @@ impl Rotor {
             .letters_list
             .iter()
             .position(|&r| r == inp_char)
-            .unwrap() as usize;
-        if rotor_index + self.current_number == 26 {
+            .unwrap() as isize;
+        if rotor_index + self.current_number >= 26 {
             rotor_index = rotor_index - 26 + self.current_number;
         }
-        ALPHABET[rotor_index + self.current_number]
+        ALPHABET[(rotor_index + self.current_number) as usize]
     }
 }
