@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-/// Shared functionality for bidirectional character mapping.
+// Shared functionality for bidirectional character mapping.
 pub struct Mapper {
     connections: HashMap<char, char>,
 }
