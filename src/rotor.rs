@@ -18,6 +18,18 @@ impl Rotor {
         }
     }
 
+    pub fn get_letters_list(&self) -> [char; 26] {
+        self.letters_list
+    }
+
+    pub fn get_current_number(&self) -> isize {
+        self.current_number
+    }
+
+    pub fn get_notch(&self) -> isize {
+        self.notch
+    }
+
     pub fn rotate(&mut self) {
         self.current_number = (self.current_number + 1) % 26;
     }
